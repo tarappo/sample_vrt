@@ -1,0 +1,25 @@
+name: VRT
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  vrt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js v20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: npm install, build, and test
+        run: |
+          npm i
+      - name: workaround for detached HEAD
+        run: |
+          git checkout ${GITHUB_REF#refs/heads/} || git checkout -b ${GITHUB_REF#refs/heads/} && git pull
+      - name: run reg-suit
+        run: |
+          npx reg-suit run
