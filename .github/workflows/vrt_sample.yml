@@ -1,0 +1,33 @@
+name: VRT
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  vrt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: workaround for detached HEAD
+        run: |
+          git checkout ${GITHUB_HEAD_REF#refs/heads/} || git checkout -b ${GITHUB_HEAD_REF#refs/heads/} && git pull
+      - name: copy image
+        run: |
+          mkdir .reg
+          mkdir .reg/expected
+          cp ./directory_contains_actual_images/sample_change.png .reg/expected/sample.png
+          rm ./directory_contains_actual_images/sample_change.png
+      - name: Use Node.js v20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: npm install, build, and test
+        run: |
+          npm i
+      - name: run reg-suit
+        run: |
+          npx reg-suit run
